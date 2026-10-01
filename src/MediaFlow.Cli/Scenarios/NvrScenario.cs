@@ -1,4 +1,5 @@
 using MediaFlow.Core.Analytics;
+using MediaFlow.Core.Media;
 using MediaFlow.Core.Recipes;
 
 namespace MediaFlow.Cli.Scenarios;
@@ -16,7 +17,7 @@ internal static class NvrScenario
         var options = new CameraOptions
         {
             Id = args.Get("id", "cam-1"),
-            Source = source == "test" ? "test" : CliArgs.ToUri(source),
+            Source = source == "test" || VideoSources.IsWebcam(source) ? source : CliArgs.ToUri(source),
             OutputRoot = args.Get("out", "recordings"),
             SegmentDuration = TimeSpan.FromSeconds(args.GetInt("segment", 10)),
             SnapshotInterval = TimeSpan.FromSeconds(args.GetInt("snapshot", 2)),

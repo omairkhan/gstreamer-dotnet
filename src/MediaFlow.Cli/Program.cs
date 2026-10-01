@@ -48,7 +48,10 @@ catch (GLib.GException ex)
 }
 catch (MediaFlow.Core.Pipelines.PipelineFailedException ex)
 {
-    return Fail($"Pipeline failed: {ex.Message}");
+    var hint = args.Any(a => a.StartsWith("webcam", StringComparison.Ordinal))
+        ? "\nTip: is the camera connected and not in use by another app? List cameras with: gst-device-monitor-1.0 Video/Source"
+        : "";
+    return Fail($"Pipeline failed: {ex.Message}{hint}");
 }
 
 static int Fail(string message)

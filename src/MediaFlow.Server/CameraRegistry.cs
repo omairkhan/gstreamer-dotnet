@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
+using MediaFlow.Core.Media;
 using MediaFlow.Core.Recipes;
 
 namespace MediaFlow.Server;
@@ -37,10 +38,10 @@ public sealed partial class CameraRegistry(MediaFlowSettings settings, ILogger<C
     public static string? Validate(CameraRequest request)
     {
         if (!IdPattern().IsMatch(request.Id)) return "id must match ^[a-z0-9][a-z0-9-]{0,31}$";
-        if (request.Source == "test") return null;
+        if (request.Source == "test" || VideoSources.IsWebcam(request.Source)) return null;
         if (!Uri.TryCreate(request.Source, UriKind.Absolute, out var uri) || !AllowedSchemes.Contains(uri.Scheme))
         {
-            return $"source must be 'test' or an absolute URI with scheme: {string.Join(", ", AllowedSchemes)}";
+            return $"source must be 'test', 'webcam', 'webcam:N' or an absolute URI with scheme: {string.Join(", ", AllowedSchemes)}";
         }
         return null;
     }

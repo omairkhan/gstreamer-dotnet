@@ -25,6 +25,11 @@ internal static class AnalyzeScenario
             description.Element("videotestsrc", ("name", "camera"), ("is-live", true), ("pattern", "black"))
                        .Caps("video/x-raw", ("width", 640), ("height", 360), ("framerate", new Fraction(25, 1)));
         }
+        else if (VideoSources.IsWebcam(source))
+        {
+            GstRuntime.Require(VideoSources.RequiredElements(source));
+            VideoSources.AppendWebcam(description, source, 640, 360, 25);
+        }
         else
         {
             description.Element("uridecodebin", ("uri", CliArgs.ToUri(source)));
@@ -49,7 +54,7 @@ internal static class AnalyzeScenario
         var scene = source == "test" ? SimulateSceneAsync(host.GetElement<Gst.Element>("camera"), run.Token) : Task.CompletedTask;
 
         // Live sources: drop frames when behind. Files: analyse every frame (lossless back-pressure).
-        var isLive = source == "test" || !CliArgs.ToUri(source).StartsWith("file:", StringComparison.Ordinal);
+        var isLive = source == "test" || VideoSources.IsWebcam(source) || !CliArgs.ToUri(source).StartsWith("file:", StringComparison.Ordinal);
         var reader = new FrameReader(host.GetElement<GstApp.AppSink>("frames"), dropWhenBehind: isLive);
         var detector = new MotionDetector("demo", new MotionOptions { Cooldown = TimeSpan.FromMilliseconds(500) });
         var clock = Stopwatch.StartNew();

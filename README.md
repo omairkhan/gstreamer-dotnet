@@ -167,10 +167,26 @@ dotnet run --project src/MediaFlow.Cli -- classic                       # the 20
 dotnet run --project src/MediaFlow.Cli -- hello                         # writes hello.mp4
 dotnet run --project src/MediaFlow.Cli -- play hello.mp4 --seek 1 --rate 2
 dotnet run --project src/MediaFlow.Cli -- transcode hello.mp4 small.mp4 --height 360 --dot graph.dot
-dotnet run --project src/MediaFlow.Cli -- analyze                       # or --source rtsp://user:pass@cam/stream
+dotnet run --project src/MediaFlow.Cli -- analyze                       # or --source webcam | rtsp://user:pass@cam/stream
 dotnet run --project src/MediaFlow.Cli -- synth
 dotnet run --project src/MediaFlow.Cli -- nvr --seconds 60              # Ctrl+C stops gracefully
 ```
+
+### Use your USB camera
+
+Any webcam works as a source: `webcam` is the system default camera, `webcam:N` picks camera number N
+(Windows: Media Foundation, macOS: AVFoundation, Linux: `/dev/videoN`).
+
+```bash
+gst-device-monitor-1.0 Video/Source                                  # list the cameras on this machine
+dotnet run --project src/MediaFlow.Cli -- analyze --source webcam    # wave at the camera → motion events
+dotnet run --project src/MediaFlow.Cli -- nvr --source webcam:0 --seconds 60
+curl -X POST localhost:5080/api/cameras -H 'content-type: application/json' -d '{"id":"desk","source":"webcam"}'
+```
+
+Close other apps that use the camera (Teams, Zoom, the browser) first. On Linux, add your user to the `video`
+group if `/dev/video0` is not readable. On macOS, allow camera access for your terminal in System Settings → Privacy.
+USB cameras that deliver MJPEG are decoded automatically.
 
 ### 3. The server
 
@@ -200,7 +216,7 @@ docker run --rm -p 8080:8080 -v "$PWD/recordings:/app/recordings" mediaflow
 ### 4. Tests
 
 ```bash
-dotnet test     # 24 tests: builder, SIMD vs scalar, motion hysteresis, backoff, and real pipelines
+dotnet test     # 35 tests: builder, SIMD vs scalar, motion hysteresis, backoff, and real pipelines
 ```
 
 Integration tests run real GStreamer pipelines (appsink frame streaming, appsrc→appsink round trip with timestamps,

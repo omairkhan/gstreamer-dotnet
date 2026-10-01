@@ -1,3 +1,4 @@
+using MediaFlow.Core.Media;
 using MediaFlow.Core.Pipelines;
 
 namespace MediaFlow.Core.Recipes;
@@ -7,7 +8,10 @@ public sealed record CameraOptions
     /// <summary>Unique id, used for folders, metrics and URLs (e.g. "gate-1").</summary>
     public required string Id { get; init; }
 
-    /// <summary>"test" for a synthetic camera, or any URI GStreamer understands: rtsp://, http(s)://, file://, srt://.</summary>
+    /// <summary>
+    /// "test" for a synthetic camera, "webcam" / "webcam:N" for a local USB camera,
+    /// or any URI GStreamer understands: rtsp://, http(s)://, file://, srt://.
+    /// </summary>
     public string Source { get; init; } = "test";
 
     public string OutputRoot { get; init; } = "recordings";
@@ -50,7 +54,9 @@ public static class CameraPipeline
     public static IReadOnlyList<string> RequiredElements(CameraOptions options)
     {
         List<string> elements = ["videoconvert", "tee", "queue"];
-        elements.Add(options.Source == "test" ? "videotestsrc" : "uridecodebin");
+        if (options.Source == "test") elements.Add("videotestsrc");
+        else if (VideoSources.IsWebcam(options.Source)) elements.AddRange(VideoSources.RequiredElements(options.Source));
+        else elements.Add("uridecodebin");
         if (options.EnableHls || options.EnableRecording) elements.AddRange(["x264enc", "h264parse", "clockoverlay", "textoverlay"]);
         if (options.EnableHls) elements.Add("hlssink2");
         if (options.EnableRecording) elements.AddRange(["splitmuxsink", "mp4mux"]);
@@ -68,6 +74,10 @@ public static class CameraPipeline
         {
             d.Element("videotestsrc", ("is-live", true), ("pattern", "ball"), ("background-color", 0xFF1E2A3Au))
              .Caps("video/x-raw", ("width", o.Width), ("height", o.Height), ("framerate", new Fraction(o.Framerate, 1)));
+        }
+        else if (VideoSources.IsWebcam(o.Source))
+        {
+            VideoSources.AppendWebcam(d, o.Source, o.Width, o.Height, o.Framerate);
         }
         else
         {

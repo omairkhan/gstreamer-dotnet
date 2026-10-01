@@ -64,15 +64,18 @@ public sealed class CliArgs
                                                hand-built pipeline, dynamic pads (pad-added), progress
 
         LEVEL 2: C# IN THE MEDIA PATH
-          analyze   [--source test|uri] [--seconds 10]
+          analyze   [--source test|webcam|webcam:N|uri] [--seconds 10]
                                                appsink -> IAsyncEnumerable<VideoFrame> -> SIMD motion detection
           synth     [--out synth.mp4] [--seconds 5]
                                                appsrc: frames rendered in C# -> H.264/MP4 with correct timestamps
 
         LEVEL 3: PRODUCTION
-          nvr       [--source test|rtsp://...] [--id cam-1] [--out recordings] [--seconds 0]
+          nvr       [--source test|webcam|webcam:N|rtsp://...] [--id cam-1] [--out recordings] [--seconds 0]
                                                supervised 24/7 camera: HLS live + rotating MP4 archive
                                                + JPEG snapshots + motion events, auto-reconnect with backoff
+
+        Sources: test = synthetic camera, webcam = default USB camera, webcam:N = camera N
+                 (list them with: gst-device-monitor-1.0 Video/Source), or any URI.
 
         Web API + dashboard: dotnet run --project src/MediaFlow.Server
         """;
