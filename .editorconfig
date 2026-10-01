@@ -1,0 +1,8 @@
+root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_elsewhere = true:suggestion
+dotnet_sort_system_directives_first = true

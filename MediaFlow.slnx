@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MediaFlow.Cli/MediaFlow.Cli.csproj" />
+    <Project Path="src/MediaFlow.Core/MediaFlow.Core.csproj" />
+    <Project Path="src/MediaFlow.Server/MediaFlow.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MediaFlow.Tests/MediaFlow.Tests.csproj" />
+  </Folder>
+</Solution>

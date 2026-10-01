@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" width="1400" height="760" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<style>
+  :root { --bg:#ffffff; --panel:#f6f8fa; --line:#d0d7de; --text:#1f2328; --muted:#59636e;
+          --gst:#e8f1fb; --gstb:#4a86c5; --net:#efe9fb; --netb:#512bd4; --out:#e6f6ec; --outb:#2da44e; --q:#fff8e5; --qb:#bf8700; --arrow:#6e7781; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --panel:#161b22; --line:#30363d; --text:#e6edf3; --muted:#9198a1;
+            --gst:#10243a; --gstb:#58a6ff; --net:#221a3d; --netb:#a48cf5; --out:#0f2a1a; --outb:#3fb950; --q:#2b2310; --qb:#d29922; --arrow:#8b949e; }
+  }
+  .bg { fill:var(--bg); }
+  .panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+  .gst { fill:var(--gst); stroke:var(--gstb); stroke-width:1.4; }
+  .net { fill:var(--net); stroke:var(--netb); stroke-width:1.6; }
+  .out { fill:var(--out); stroke:var(--outb); stroke-width:1.6; }
+  .q   { fill:var(--q); stroke:var(--qb); stroke-width:1.4; stroke-dasharray:4 3; }
+  .t { fill:var(--text); font-size:13px; font-weight:600; text-anchor:middle; }
+  .s { fill:var(--muted); font-size:11px; text-anchor:middle; }
+  .h { fill:var(--text); font-size:22px; font-weight:700; }
+  .sub { fill:var(--muted); font-size:13px; }
+  .lbl { fill:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em; }
+  .lane { fill:var(--muted); font-size:12px; font-weight:600; }
+  .edge { fill:var(--muted); font-size:11px; font-style:italic; }
+  .ln { fill:none; stroke:var(--arrow); stroke-width:1.6; }
+  .dash { fill:none; stroke:var(--netb); stroke-width:1.6; stroke-dasharray:6 4; }
+  #ah path { fill:var(--arrow); }
+  #ahn path { fill:var(--netb); }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="ahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="bg" x="0" y="0" width="1400" height="760" rx="12"/>
+<text class="h" x="32" y="44">MediaFlow camera pipeline</text>
+<text class="sub" x="32" y="66">One ingest · one decode · one encode · many consumers, supervised and observable from .NET</text>
+<rect class="panel" x="20" y="86" width="1360" height="360" rx="10"/>
+<text class="lbl" x="36" y="110">GSTREAMER PIPELINE (NATIVE)</text>
+<rect class="panel" x="20" y="462" width="1360" height="278" rx="10"/>
+<text class="lbl" x="36" y="486">.NET 10 / C# 14 (MANAGED)</text>
+<rect class="gst" x="40" y="246" width="150" height="68" rx="8"/>
+<text class="t gst-t" x="115.0" y="277.0">Source</text>
+<text class="s" x="115.0" y="293.0">test · rtsp · http · srt · file</text>
+<rect class="gst" x="214" y="260" width="112" height="40" rx="8"/>
+<text class="t gst-t" x="270.0" y="285.0">videoconvert</text>
+<rect class="gst" x="350" y="260" width="90" height="40" rx="20"/>
+<text class="t gst-t" x="395.0" y="285.0">tee (raw)</text>
+<path class="ln" d="M190,280 L212,280" marker-end="url(#ah)"/>
+<path class="ln" d="M326,280 L348,280" marker-end="url(#ah)"/>
+<path class="ln" d="M440,280 L470,280 L470,175 L518,175" marker-end="url(#ah)"/>
+<path class="ln" d="M440,280 L470,280 L470,300 L518,300" marker-end="url(#ah)"/>
+<path class="ln" d="M440,280 L470,280 L470,395 L518,395" marker-end="url(#ah)"/>
+<text class="lane" x="520" y="131">① Encode once → live + archive</text>
+<text class="lane" x="520" y="270">② Evidence snapshots</text>
+<text class="lane" x="520" y="365">③ Analytics (never blocks recording)</text>
+<rect class="q" x="520" y="155.0" width="70" height="40" rx="8"/>
+<text class="t q-t" x="555.0" y="180.0">queue</text>
+<rect class="gst" x="608" y="155.0" width="128" height="40" rx="8"/>
+<text class="t gst-t" x="672.0" y="172.0">clock + name</text>
+<text class="s" x="672.0" y="188.0">overlay</text>
+<rect class="gst" x="754" y="155.0" width="96" height="40" rx="8"/>
+<text class="t gst-t" x="802.0" y="172.0">x264enc</text>
+<text class="s" x="802.0" y="188.0">H.264</text>
+<rect class="gst" x="868" y="155.0" width="88" height="40" rx="8"/>
+<text class="t gst-t" x="912.0" y="180.0">tee (enc)</text>
+<path class="ln" d="M590,175 L606,175" marker-end="url(#ah)"/>
+<path class="ln" d="M736,175 L752,175" marker-end="url(#ah)"/>
+<path class="ln" d="M850,175 L866,175" marker-end="url(#ah)"/>
+<path class="ln" d="M956,175 L972,175 L972,145 L986,145" marker-end="url(#ah)"/>
+<rect class="gst" x="986" y="128" width="86" height="34" rx="8"/>
+<text class="t gst-t" x="1029.0" y="150.0">h264parse</text>
+<rect class="gst" x="1088" y="128" width="104" height="34" rx="8"/>
+<text class="t gst-t" x="1140.0" y="150.0">hlssink2</text>
+<path class="ln" d="M1072,145 L1086,145" marker-end="url(#ah)"/>
+<rect class="out" x="1200" y="123" width="164" height="44" rx="8"/>
+<text class="t out-t" x="1282.0" y="142.0">Live HLS</text>
+<text class="s" x="1282.0" y="158.0">browser · hls.js</text>
+<path class="ln" d="M1192,145 L1198,145" marker-end="url(#ah)"/>
+<path class="ln" d="M956,175 L972,175 L972,205 L986,205" marker-end="url(#ah)"/>
+<rect class="gst" x="986" y="188" width="86" height="34" rx="8"/>
+<text class="t gst-t" x="1029.0" y="210.0">h264parse</text>
+<rect class="gst" x="1088" y="188" width="104" height="34" rx="8"/>
+<text class="t gst-t" x="1140.0" y="210.0">splitmuxsink</text>
+<path class="ln" d="M1072,205 L1086,205" marker-end="url(#ah)"/>
+<rect class="out" x="1200" y="183" width="164" height="44" rx="8"/>
+<text class="t out-t" x="1282.0" y="202.0">MP4 archive</text>
+<text class="s" x="1282.0" y="218.0">rotating, always playable</text>
+<path class="ln" d="M1192,205 L1198,205" marker-end="url(#ah)"/>
+<rect class="q" x="520" y="280.0" width="96" height="40" rx="8"/>
+<text class="t q-t" x="568.0" y="297.0">queue</text>
+<text class="s" x="568.0" y="313.0">leaky</text>
+<rect class="gst" x="634" y="280.0" width="110" height="40" rx="8"/>
+<text class="t gst-t" x="689.0" y="297.0">videorate</text>
+<text class="s" x="689.0" y="313.0">1 frame / N s</text>
+<rect class="gst" x="762" y="280.0" width="104" height="40" rx="8"/>
+<text class="t gst-t" x="814.0" y="305.0">overlay</text>
+<rect class="gst" x="884" y="280.0" width="86" height="40" rx="8"/>
+<text class="t gst-t" x="927.0" y="305.0">jpegenc</text>
+<rect class="gst" x="988" y="280.0" width="120" height="40" rx="8"/>
+<text class="t gst-t" x="1048.0" y="305.0">multifilesink</text>
+<path class="ln" d="M616,300 L632,300" marker-end="url(#ah)"/>
+<path class="ln" d="M744,300 L760,300" marker-end="url(#ah)"/>
+<path class="ln" d="M866,300 L882,300" marker-end="url(#ah)"/>
+<path class="ln" d="M970,300 L986,300" marker-end="url(#ah)"/>
+<rect class="out" x="1200" y="278" width="164" height="44" rx="8"/>
+<text class="t out-t" x="1282.0" y="297.0">JPEG snapshots</text>
+<text class="s" x="1282.0" y="313.0">latest via REST</text>
+<path class="ln" d="M1108,300 L1198,300" marker-end="url(#ah)"/>
+<rect class="q" x="520" y="375.0" width="96" height="40" rx="8"/>
+<text class="t q-t" x="568.0" y="392.0">queue</text>
+<text class="s" x="568.0" y="408.0">leaky</text>
+<rect class="gst" x="634" y="375.0" width="104" height="40" rx="8"/>
+<text class="t gst-t" x="686.0" y="400.0">videoscale</text>
+<rect class="gst" x="756" y="375.0" width="150" height="40" rx="8"/>
+<text class="t gst-t" x="831.0" y="392.0">GRAY8 320×180</text>
+<text class="s" x="831.0" y="408.0">10 fps caps</text>
+<rect class="gst" x="924" y="375.0" width="96" height="40" rx="8"/>
+<text class="t gst-t" x="972.0" y="400.0">appsink</text>
+<path class="ln" d="M616,395 L632,395" marker-end="url(#ah)"/>
+<path class="ln" d="M738,395 L754,395" marker-end="url(#ah)"/>
+<path class="ln" d="M906,395 L922,395" marker-end="url(#ah)"/>
+<rect class="net" x="884" y="514" width="176" height="52" rx="8"/>
+<text class="t net-t" x="972.0" y="537.0">FrameReader</text>
+<text class="s" x="972.0" y="553.0">IAsyncEnumerable&lt;VideoFrame&gt;</text>
+<path class="ln" d="M972.0,415 L972.0,512" marker-end="url(#ah)"/>
+<text class="edge" x="980.0" y="471.5">frames</text>
+<rect class="net" x="1200" y="514" width="164" height="52" rx="8"/>
+<text class="t net-t" x="1282.0" y="537.0">MotionDetector</text>
+<text class="s" x="1282.0" y="553.0">SIMD · hysteresis</text>
+<path class="ln" d="M1060,540 L1198,540" marker-end="url(#ah)"/>
+<rect class="net" x="40" y="514" width="230" height="52" rx="8"/>
+<text class="t net-t" x="155.0" y="537.0">PipelineHost</text>
+<text class="s" x="155.0" y="553.0">bus pump → Channel&lt;PipelineEvent&gt;</text>
+<path class="ln" d="M115,314 L115,512" marker-end="url(#ah)"/>
+<text class="edge" x="123" y="360">bus: errors · EOS · element msgs</text>
+<rect class="net" x="40" y="650" width="230" height="52" rx="8"/>
+<text class="t net-t" x="155.0" y="673.0">PipelineSupervisor</text>
+<text class="s" x="155.0" y="689.0">restart · backoff + jitter</text>
+<path class="dash" d="M40,676 L28,676 L28,280 L38,280" marker-end="url(#ahn)"/>
+<text class="edge" x="163" y="614">on failure: rebuild</text>
+<path class="ln" d="M155,566 L155,648" marker-end="url(#ah)"/>
+<rect class="net" x="420" y="650" width="250" height="52" rx="8"/>
+<text class="t net-t" x="545.0" y="673.0">CameraSession</text>
+<text class="s" x="545.0" y="689.0">events fan-out to subscribers</text>
+<path class="ln" d="M270,540 L330,540 L330,676 L418,676" marker-end="url(#ah)"/>
+<path class="ln" d="M1282,566 L1282,610 L545,610 L545,648" marker-end="url(#ah)"/>
+<text class="edge" x="700" y="604">MotionStarted / MotionEnded</text>
+<rect class="net" x="800" y="650" width="564" height="52" rx="8"/>
+<text class="t net-t" x="1082.0" y="673.0">ASP.NET Core API + dashboard</text>
+<text class="s" x="1082.0" y="689.0">REST · Server-Sent Events · HLS files · /health · OpenAPI · metrics</text>
+<path class="ln" d="M670,676 L798,676" marker-end="url(#ah)"/>
+<g>
+<rect class="gst" x="820" y="34" width="16" height="16" rx="3"/>
+<text class="sub" x="842" y="47">GStreamer element</text>
+<rect class="q" x="986.4" y="34" width="16" height="16" rx="3"/>
+<text class="sub" x="1008.4" y="47">queue / thread</text>
+<rect class="net" x="1131.2" y="34" width="16" height="16" rx="3"/>
+<text class="sub" x="1153.2" y="47">.NET component</text>
+<rect class="out" x="1276.0" y="34" width="16" height="16" rx="3"/>
+<text class="sub" x="1298.0" y="47">output</text>
+</g>
+</svg>

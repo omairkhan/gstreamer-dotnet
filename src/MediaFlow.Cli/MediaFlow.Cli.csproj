@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>mediaflow</AssemblyName>
+    <RootNamespace>MediaFlow.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MediaFlow.Core\MediaFlow.Core.csproj" />
+  </ItemGroup>
+</Project>

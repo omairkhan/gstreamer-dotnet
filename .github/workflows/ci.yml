@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install GStreamer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-x \
+            gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0
+
+      - run: dotnet build MediaFlow.slnx -c Release
+
+      - run: dotnet test -c Release --no-build
+
+      - name: Smoke-test the CLI scenarios
+        working-directory: ${{ runner.temp }}
+        run: |
+          CLI="dotnet ${{ github.workspace }}/src/MediaFlow.Cli/bin/Release/net10.0/mediaflow.dll"
+          $CLI doctor
+          $CLI hello --seconds 2
+          $CLI transcode hello.mp4 small.mp4 --height 360
+          $CLI synth --seconds 2
+          $CLI analyze --seconds 6
+          $CLI nvr --seconds 12 --segment 4
+          test -f recordings/cam-1/hls/index.m3u8
+          ls recordings/cam-1/archive/*.mp4
+
+  docker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -f docker/Dockerfile -t mediaflow .

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediaFlow Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+  <style>
+    :root { --bg:#0f1115; --panel:#181b22; --line:#2a2f3a; --text:#e6e8ee; --muted:#8a91a3; --ok:#3ecf8e; --warn:#f5a524; --bad:#f31260; --accent:#4f8cff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--text); }
+    header { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line); }
+    header h1 { font-size:18px; margin:0; } header small { color:var(--muted); }
+    form { display:flex; gap:8px; flex-wrap:wrap; }
+    input, button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; }
+    button { cursor:pointer; } button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+    main { display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:16px; padding:20px; }
+    @media (max-width: 480px) { main { grid-template-columns:1fr; padding:16px; } }
+    .cam { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+    .cam video { width:100%; aspect-ratio:16/9; background:#000; display:block; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; }
+    .badge { padding:2px 8px; border-radius:99px; font-size:12px; font-weight:600; }
+    .Running { background:#3ecf8e22; color:var(--ok); } .BackingOff, .Starting { background:#f5a52422; color:var(--warn); } .Faulted, .Stopped { background:#f3126022; color:var(--bad); }
+    .meter { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin:0 12px; }
+    .meter > div { height:100%; width:0; background:var(--ok); transition:width .3s; }
+    .meter.motion > div { background:var(--bad); }
+    ul { list-style:none; margin:0; padding:8px 12px 12px; max-height:170px; overflow:auto; font:12px ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }
+    li.MotionStarted { color:var(--bad); } li.MotionEnded, li.SegmentClosed { color:var(--ok); } li.Error { color:var(--bad); } li.Warning { color:var(--warn); }
+    .muted { color:var(--muted); font-size:12px; }
+  </style>
+</head>
+<body>
+<header>
+  <div><h1>MediaFlow</h1><small id="info">GStreamer + .NET</small></div>
+  <form id="add">
+    <input name="id" placeholder="camera id (e.g. gate-1)" required pattern="[a-z0-9][a-z0-9-]{0,31}">
+    <input name="source" placeholder="rtsp://… or test" value="test" required size="32">
+    <button class="primary">Add camera</button>
+  </form>
+</header>
+<main id="grid"></main>
+<script>
+const grid = document.getElementById('grid');
+const cards = new Map();
+
+fetch('/api/info').then(r => r.json()).then(i => document.getElementById('info').textContent = `${i.gstreamer} · .NET ${i.dotnet}`);
+
+function card(cam) {
+  const el = document.createElement('section');
+  el.className = 'cam';
+  el.innerHTML = `
+    <video muted autoplay playsinline></video>
+    <div class="row"><strong>${cam.id}</strong><span class="badge"></span></div>
+    <div class="meter"><div></div></div>
+    <div class="row"><span class="muted src"></span><button data-del>Remove</button></div>
+    <ul></ul>`;
+  el.querySelector('.src').textContent = cam.source;
+  el.querySelector('[data-del]').onclick = async () => { await fetch(`/api/cameras/${cam.id}`, { method: 'DELETE' }); refresh(); };
+  grid.append(el);
+
+  const video = el.querySelector('video');
+  video.addEventListener('playing', () => video.controls = true, { once: true });
+  const attach = () => {
+    if (window.Hls && Hls.isSupported()) {
+      const hls = new Hls({ liveSyncDurationCount: 2 });
+      hls.loadSource(cam.hlsUrl); hls.attachMedia(video);
+      hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) { hls.destroy(); setTimeout(attach, 3000); } });
+    } else { video.src = cam.hlsUrl; }
+  };
+  setTimeout(attach, 4000); // the first HLS segments need a few seconds to exist
+
+  const log = el.querySelector('ul');
+  const es = new EventSource(cam.eventsUrl);
+  const add = e => {
+    const li = document.createElement('li');
+    li.className = e.kind;
+    li.textContent = `${new Date(e.at).toLocaleTimeString()}  ${e.kind}  ${e.message}${e.path ? '  ' + e.path.split('/').pop() : ''}`;
+    log.prepend(li);
+    while (log.children.length > 50) log.lastChild.remove();
+  };
+  // Snapshots refresh the poster instead of flooding the log.
+  ['Status','MotionStarted','MotionEnded','SegmentClosed','Warning','Error'].forEach(k => es.addEventListener(k, m => add(JSON.parse(m.data))));
+  return { el, es };
+}
+
+function update(cam) {
+  const { el } = cards.get(cam.id);
+  const video = el.querySelector('video');
+  if (video.readyState < 2) video.poster = `${cam.snapshotUrl}?t=${Date.now()}`; // latest JPEG until HLS plays
+  const badge = el.querySelector('.badge');
+  badge.textContent = cam.restarts ? `${cam.state} · ${cam.restarts} restarts` : cam.state;
+  badge.className = `badge ${cam.state}`;
+  badge.title = cam.lastError ?? '';
+  const meter = el.querySelector('.meter');
+  meter.classList.toggle('motion', cam.inMotion);
+  meter.firstElementChild.style.width = `${Math.min(100, cam.motionScore * 20000)}%`;
+}
+
+async function refresh() {
+  const cams = await (await fetch('/api/cameras')).json();
+  const ids = new Set(cams.map(c => c.id));
+  for (const [id, c] of cards) if (!ids.has(id)) { c.es.close(); c.el.remove(); cards.delete(id); }
+  for (const cam of cams) { if (!cards.has(cam.id)) cards.set(cam.id, card(cam)); update(cam); }
+}
+
+document.getElementById('add').onsubmit = async e => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target));
+  const r = await fetch('/api/cameras', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) alert(await r.text());
+  refresh();
+};
+
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>

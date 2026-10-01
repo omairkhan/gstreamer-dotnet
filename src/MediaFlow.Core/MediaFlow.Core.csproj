@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Description>Production-grade building blocks for GStreamer pipelines in modern C#.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GirCore.Gst-1.0" />
+    <PackageReference Include="GirCore.GstApp-1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MediaFlow.Tests" />
+  </ItemGroup>
+</Project>

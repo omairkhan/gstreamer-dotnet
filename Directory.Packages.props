@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <!-- GStreamer bindings generated from GObject-Introspection (https://gircore.github.io) -->
+    <PackageVersion Include="GirCore.Gst-1.0" Version="0.8.1" />
+    <PackageVersion Include="GirCore.GstApp-1.0" Version="0.8.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <!-- Tests -->
+    <PackageVersion Include="xunit.v3" Version="4.0.1" />
+  </ItemGroup>
+</Project>
